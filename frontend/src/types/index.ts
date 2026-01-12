@@ -5,6 +5,8 @@
 
 // ============ User & Auth Types ============
 export interface User {
+  id: string;
+  email: string;
   token: string;
   role: UserRole;
   name: string;
@@ -18,6 +20,8 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
+  id: string;
+  email: string;
   token: string;
   role: UserRole;
   name: string;
@@ -55,16 +59,19 @@ export interface CreateBorrowerRequest {
 export interface UpdateBorrowerRequest {
   fullName?: string;
   email?: string;
+  phone?: string;
   address?: string;
   riskScore?: number;
 }
 
 // ============ Loan Types ============
 export interface Loan {
+  id: string;
   loanId: string;
   borrowerId: string;
   borrowerName: string;
   principal: number;
+  principalAmount: number;
   interestRate: number;
   interestType: InterestType;
   tenureMonths: number;
@@ -80,7 +87,6 @@ export interface Loan {
   disbursedAt?: string;
   closedAt?: string;
 }
-
 export type InterestType = 'FLAT' | 'REDUCING';
 
 export type LoanStatus = 'CREATED' | 'ACTIVE' | 'CLOSED' | 'DEFAULTED';
@@ -154,8 +160,8 @@ export interface PortfolioSummary {
   closedLoans: number;
   defaultedLoans: number;
   totalBorrowers: number;
+  totalLoans: number;
 }
-
 export interface LoanStatement {
   loanId: string;
   borrowerName: string;

@@ -38,6 +38,7 @@ import { borrowerApi } from '../../api/borrower.api';
 import { loanApi } from '../../api/loan.api';
 import type { Borrower, Loan } from '../../types';
 import { logger } from '../../utils/logger';
+import { formatCurrency } from '../../utils/currency';
 
 const MODULE = 'BorrowerDetailPage';
 
@@ -87,13 +88,6 @@ const BorrowerDetailPage: React.FC = () => {
       case 'DELETED': return 'default';
       default: return 'default';
     }
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-    }).format(amount);
   };
 
   if (loading) {

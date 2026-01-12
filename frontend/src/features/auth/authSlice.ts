@@ -30,8 +30,10 @@ const getInitialState = (): AuthState => {
       // Decode JWT to get user info (for display only, NOT for authorization)
       const payload = JSON.parse(atob(token.split('.')[1]));
       user = {
+        id: payload.id || payload.sub || '',
+        email: payload.email || '',
         token: token,
-        name: payload.name || payload.sub, // Fallback to subject if name not present
+        name: payload.name || payload.sub || 'User',
         role: payload.role as UserRole,
       };
       logger.info(MODULE, 'Restored user session from token', { role: user.role });
@@ -124,6 +126,8 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
         // Construct user object from response
         state.user = {
+          id: action.payload.id,
+          email: action.payload.email,
           token: action.payload.token,
           name: action.payload.name,
           role: action.payload.role,
@@ -150,6 +154,8 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
         // Construct user object from response
         state.user = {
+          id: action.payload.id,
+          email: action.payload.email,
           token: action.payload.token,
           name: action.payload.name,
           role: action.payload.role,

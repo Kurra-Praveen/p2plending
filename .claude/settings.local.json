@@ -9,7 +9,11 @@
       "Bash(npm install)",
       "Bash(npm install:*)",
       "Bash(npm run build:*)",
-      "Bash(npm run lint)"
+      "Bash(npm run lint)",
+      "Bash(F:/java/p2plending/backend/mvnw.cmd:*)",
+      "Bash(npm --version:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(python -c:*)"
     ]
   }
 }

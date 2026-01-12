@@ -18,11 +18,6 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import WarningIcon from '@mui/icons-material/Warning';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
   Tooltip,
   ResponsiveContainer,
   PieChart,
@@ -33,18 +28,9 @@ import {
 import { reportApi } from '../../api/report.api';
 import type { PortfolioSummary } from '../../types';
 import { logger } from '../../utils/logger';
+import { formatCurrency } from '../../utils/currency';
 
 const MODULE = 'DashboardPage';
-
-// Format currency in INR
-const formatCurrency = (value: number): string => {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value / 100); // Convert paise to rupees
-};
 
 interface KpiCardProps {
   title: string;

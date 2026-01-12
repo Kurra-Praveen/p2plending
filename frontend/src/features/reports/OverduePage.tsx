@@ -20,6 +20,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { reportApi } from '../../api/report.api';
 import type { OverdueLoan } from '../../types';
 import { logger } from '../../utils/logger';
+import { formatCurrency } from '../../utils/currency';
 
 import DataTable from '../../components/tables/DataTable';
 
@@ -55,13 +56,6 @@ const OverduePage: React.FC = () => {
 
     fetchOverdueLoans();
   }, []);
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-    }).format(amount);
-  };
 
   const columns = [
     {

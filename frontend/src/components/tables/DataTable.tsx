@@ -18,7 +18,7 @@ interface Column<T> {
   label: string;
   minWidth?: number;
   align?: 'right' | 'left' | 'center';
-  format?: (value: unknown, row: T) => React.ReactNode;
+  format?: (value: any, row: T) => React.ReactNode;
 }
 
 interface DataTableProps<T> {

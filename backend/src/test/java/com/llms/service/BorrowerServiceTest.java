@@ -156,7 +156,8 @@ class BorrowerServiceTest {
         @Test
         @DisplayName("Should get borrower by ID")
         void shouldGetBorrowerById() {
-            when(borrowerRepository.findByIdAndNotDeleted(testBorrower.getId()))
+            when(securityUtils.getCurrentUserId()).thenReturn(currentUser.getId());
+            when(borrowerRepository.findByIdAndCreatedByAndNotDeleted(testBorrower.getId(), currentUser.getId()))
                     .thenReturn(Optional.of(testBorrower));
 
             BorrowerResponse response = borrowerService.getBorrower(testBorrower.getId());
@@ -170,7 +171,9 @@ class BorrowerServiceTest {
         @DisplayName("Should throw exception for non-existent borrower")
         void shouldThrowExceptionForNonExistent() {
             UUID randomId = UUID.randomUUID();
-            when(borrowerRepository.findByIdAndNotDeleted(randomId)).thenReturn(Optional.empty());
+            when(securityUtils.getCurrentUserId()).thenReturn(currentUser.getId());
+            when(borrowerRepository.findByIdAndCreatedByAndNotDeleted(randomId, currentUser.getId()))
+                    .thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> borrowerService.getBorrower(randomId))
                     .isInstanceOf(ResourceNotFoundException.class);
@@ -187,7 +190,9 @@ class BorrowerServiceTest {
             Pageable pageable = PageRequest.of(0, 10);
             Page<Borrower> borrowerPage = new PageImpl<>(List.of(testBorrower), pageable, 1);
 
-            when(borrowerRepository.findAllNotDeleted(pageable)).thenReturn(borrowerPage);
+            when(securityUtils.getCurrentUserId()).thenReturn(currentUser.getId());
+            when(borrowerRepository.findAllByCreatedByAndNotDeleted(currentUser.getId(), pageable))
+                    .thenReturn(borrowerPage);
 
             Page<BorrowerResponse> response = borrowerService.getAllBorrowers(pageable);
 
@@ -209,7 +214,8 @@ class BorrowerServiceTest {
                     .riskScore(800)
                     .build();
 
-            when(borrowerRepository.findByIdAndNotDeleted(testBorrower.getId()))
+            when(securityUtils.getCurrentUserId()).thenReturn(currentUser.getId());
+            when(borrowerRepository.findByIdAndCreatedByAndNotDeleted(testBorrower.getId(), currentUser.getId()))
                     .thenReturn(Optional.of(testBorrower));
             when(borrowerRepository.save(any(Borrower.class))).thenReturn(testBorrower);
 
@@ -227,7 +233,8 @@ class BorrowerServiceTest {
                     .email("onlyemail@test.com")
                     .build();
 
-            when(borrowerRepository.findByIdAndNotDeleted(testBorrower.getId()))
+            when(securityUtils.getCurrentUserId()).thenReturn(currentUser.getId());
+            when(borrowerRepository.findByIdAndCreatedByAndNotDeleted(testBorrower.getId(), currentUser.getId()))
                     .thenReturn(Optional.of(testBorrower));
             when(borrowerRepository.save(any(Borrower.class))).thenReturn(testBorrower);
 
@@ -246,7 +253,8 @@ class BorrowerServiceTest {
         @Test
         @DisplayName("Should block borrower successfully")
         void shouldBlockBorrower() {
-            when(borrowerRepository.findByIdAndNotDeleted(testBorrower.getId()))
+            when(securityUtils.getCurrentUserId()).thenReturn(currentUser.getId());
+            when(borrowerRepository.findByIdAndCreatedByAndNotDeleted(testBorrower.getId(), currentUser.getId()))
                     .thenReturn(Optional.of(testBorrower));
             when(borrowerRepository.save(any(Borrower.class))).thenReturn(testBorrower);
 
@@ -264,7 +272,8 @@ class BorrowerServiceTest {
         @Test
         @DisplayName("Should soft delete borrower")
         void shouldSoftDeleteBorrower() {
-            when(borrowerRepository.findByIdAndNotDeleted(testBorrower.getId()))
+            when(securityUtils.getCurrentUserId()).thenReturn(currentUser.getId());
+            when(borrowerRepository.findByIdAndCreatedByAndNotDeleted(testBorrower.getId(), currentUser.getId()))
                     .thenReturn(Optional.of(testBorrower));
             when(borrowerRepository.save(any(Borrower.class))).thenReturn(testBorrower);
 

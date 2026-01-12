@@ -16,13 +16,13 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/loans/{loanId}/payments")
+@RequestMapping("/api/v1")
 @RequiredArgsConstructor
 public class PaymentController {
 
     private final PaymentService paymentService;
 
-    @PostMapping
+    @PostMapping("/loans/{loanId}/payments")
     @PreAuthorize("hasRole('LENDER') or hasRole('ADMIN')")
     public ResponseEntity<PaymentResponse> recordPayment(
             @PathVariable UUID loanId,
@@ -31,7 +31,7 @@ public class PaymentController {
                 .body(paymentService.recordPayment(loanId, request));
     }
 
-    @GetMapping
+    @GetMapping("/loans/{loanId}/payments")
     @PreAuthorize("hasRole('LENDER') or hasRole('ADMIN') or hasRole('AUDITOR')")
     public ResponseEntity<Page<PaymentResponse>> getPayments(
             @PathVariable UUID loanId,
@@ -39,9 +39,15 @@ public class PaymentController {
         return ResponseEntity.ok(paymentService.getPaymentsByLoan(loanId, pageable));
     }
 
-    @GetMapping("/all")
+    @GetMapping("/loans/{loanId}/payments/all")
     @PreAuthorize("hasRole('LENDER') or hasRole('ADMIN') or hasRole('AUDITOR')")
     public ResponseEntity<List<PaymentResponse>> getAllPayments(@PathVariable UUID loanId) {
         return ResponseEntity.ok(paymentService.getAllPaymentsByLoan(loanId));
+    }
+
+    @GetMapping("/payments")
+    @PreAuthorize("hasRole('LENDER') or hasRole('ADMIN') or hasRole('AUDITOR')")
+    public ResponseEntity<Page<PaymentResponse>> getAllPaymentsGlobal(Pageable pageable) {
+        return ResponseEntity.ok(paymentService.getAllPayments(pageable));
     }
 }

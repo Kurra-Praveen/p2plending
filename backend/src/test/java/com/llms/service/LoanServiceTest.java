@@ -190,7 +190,9 @@ class LoanServiceTest {
                     .reference("TXN123")
                     .build();
 
-            when(loanRepository.findById(testLoan.getId())).thenReturn(Optional.of(testLoan));
+            when(securityUtils.getCurrentUserId()).thenReturn(currentUser.getId());
+            when(loanRepository.findByIdAndCreatedBy(testLoan.getId(), currentUser.getId()))
+                    .thenReturn(Optional.of(testLoan));
             when(securityUtils.getCurrentUser()).thenReturn(currentUser);
             when(loanRepository.save(any(Loan.class))).thenReturn(testLoan);
             when(scheduleRepository.findByLoanIdOrderByEmiNoAsc(testLoan.getId()))
@@ -214,7 +216,9 @@ class LoanServiceTest {
                     .mode(PaymentMode.BANK)
                     .build();
 
-            when(loanRepository.findById(testLoan.getId())).thenReturn(Optional.of(testLoan));
+            when(securityUtils.getCurrentUserId()).thenReturn(currentUser.getId());
+            when(loanRepository.findByIdAndCreatedBy(testLoan.getId(), currentUser.getId()))
+                    .thenReturn(Optional.of(testLoan));
 
             assertThatThrownBy(() -> loanService.disburseLoan(testLoan.getId(), request))
                     .isInstanceOf(InvalidStateException.class)
@@ -229,7 +233,9 @@ class LoanServiceTest {
                     .mode(PaymentMode.BANK)
                     .build();
 
-            when(loanRepository.findById(testLoan.getId())).thenReturn(Optional.of(testLoan));
+            when(securityUtils.getCurrentUserId()).thenReturn(currentUser.getId());
+            when(loanRepository.findByIdAndCreatedBy(testLoan.getId(), currentUser.getId()))
+                    .thenReturn(Optional.of(testLoan));
 
             assertThatThrownBy(() -> loanService.disburseLoan(testLoan.getId(), request))
                     .isInstanceOf(InvalidStateException.class)
@@ -249,7 +255,9 @@ class LoanServiceTest {
             testLoan.setOutstandingInterest(0L);
             testLoan.setOutstandingPenalty(0L);
 
-            when(loanRepository.findById(testLoan.getId())).thenReturn(Optional.of(testLoan));
+            when(securityUtils.getCurrentUserId()).thenReturn(currentUser.getId());
+            when(loanRepository.findByIdAndCreatedBy(testLoan.getId(), currentUser.getId()))
+                    .thenReturn(Optional.of(testLoan));
             when(securityUtils.getCurrentUser()).thenReturn(currentUser);
             when(loanRepository.save(any(Loan.class))).thenReturn(testLoan);
 
@@ -265,7 +273,9 @@ class LoanServiceTest {
             testLoan.setStatus(LoanStatus.ACTIVE);
             testLoan.setOutstandingPrincipal(5000000L);
 
-            when(loanRepository.findById(testLoan.getId())).thenReturn(Optional.of(testLoan));
+            when(securityUtils.getCurrentUserId()).thenReturn(currentUser.getId());
+            when(loanRepository.findByIdAndCreatedBy(testLoan.getId(), currentUser.getId()))
+                    .thenReturn(Optional.of(testLoan));
 
             assertThatThrownBy(() -> loanService.closeLoan(testLoan.getId()))
                     .isInstanceOf(InvalidStateException.class)
@@ -277,7 +287,9 @@ class LoanServiceTest {
         void shouldThrowExceptionForNonActiveLoan() {
             testLoan.setStatus(LoanStatus.CREATED);
 
-            when(loanRepository.findById(testLoan.getId())).thenReturn(Optional.of(testLoan));
+            when(securityUtils.getCurrentUserId()).thenReturn(currentUser.getId());
+            when(loanRepository.findByIdAndCreatedBy(testLoan.getId(), currentUser.getId()))
+                    .thenReturn(Optional.of(testLoan));
 
             assertThatThrownBy(() -> loanService.closeLoan(testLoan.getId()))
                     .isInstanceOf(InvalidStateException.class);
@@ -293,7 +305,9 @@ class LoanServiceTest {
         void shouldMarkLoanAsDefaulted() {
             testLoan.setStatus(LoanStatus.ACTIVE);
 
-            when(loanRepository.findById(testLoan.getId())).thenReturn(Optional.of(testLoan));
+            when(securityUtils.getCurrentUserId()).thenReturn(currentUser.getId());
+            when(loanRepository.findByIdAndCreatedBy(testLoan.getId(), currentUser.getId()))
+                    .thenReturn(Optional.of(testLoan));
             when(securityUtils.getCurrentUser()).thenReturn(currentUser);
             when(loanRepository.save(any(Loan.class))).thenReturn(testLoan);
 
@@ -308,7 +322,9 @@ class LoanServiceTest {
         void shouldThrowExceptionForNonActiveLoan() {
             testLoan.setStatus(LoanStatus.CLOSED);
 
-            when(loanRepository.findById(testLoan.getId())).thenReturn(Optional.of(testLoan));
+            when(securityUtils.getCurrentUserId()).thenReturn(currentUser.getId());
+            when(loanRepository.findByIdAndCreatedBy(testLoan.getId(), currentUser.getId()))
+                    .thenReturn(Optional.of(testLoan));
 
             assertThatThrownBy(() -> loanService.markAsDefaulted(testLoan.getId(), "Manual"))
                     .isInstanceOf(InvalidStateException.class);
@@ -322,7 +338,9 @@ class LoanServiceTest {
         @Test
         @DisplayName("Should get loan by ID")
         void shouldGetLoanById() {
-            when(loanRepository.findById(testLoan.getId())).thenReturn(Optional.of(testLoan));
+            when(securityUtils.getCurrentUserId()).thenReturn(currentUser.getId());
+            when(loanRepository.findByIdAndCreatedBy(testLoan.getId(), currentUser.getId()))
+                    .thenReturn(Optional.of(testLoan));
 
             LoanResponse response = loanService.getLoan(testLoan.getId());
 
@@ -334,7 +352,9 @@ class LoanServiceTest {
         @DisplayName("Should throw exception for non-existent loan")
         void shouldThrowExceptionForNonExistent() {
             UUID randomId = UUID.randomUUID();
-            when(loanRepository.findById(randomId)).thenReturn(Optional.empty());
+            when(securityUtils.getCurrentUserId()).thenReturn(currentUser.getId());
+            when(loanRepository.findByIdAndCreatedBy(randomId, currentUser.getId()))
+                    .thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> loanService.getLoan(randomId))
                     .isInstanceOf(ResourceNotFoundException.class);

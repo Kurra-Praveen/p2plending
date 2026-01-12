@@ -1,0 +1,63 @@
+-- ============================================================
+-- Cleanup Script: Delete all data except USERS
+-- Database: PostgreSQL
+-- Safe to run in psql / pgAdmin
+-- ============================================================
+
+BEGIN;
+
+-- ------------------------------------------------------------
+-- STEP 1: Lock tables (prevents concurrent writes)
+-- ------------------------------------------------------------
+LOCK TABLE
+    payment_allocations,
+    penalties,
+    repayment_schedule,
+    loan_status_history,
+    payments,
+    disbursements,
+    loans,
+    borrowers,
+    audit_logs
+IN ACCESS EXCLUSIVE MODE;
+
+-- ------------------------------------------------------------
+-- STEP 2: Delete data (child → parent order)
+-- ------------------------------------------------------------
+
+-- Deep child tables
+DELETE FROM payment_allocations;
+DELETE FROM penalties;
+DELETE FROM repayment_schedule;
+DELETE FROM loan_status_history;
+
+-- Transactional tables
+DELETE FROM payments;
+DELETE FROM disbursements;
+
+-- Core business tables
+DELETE FROM loans;
+
+-- Borrowers
+DELETE FROM borrowers;
+
+-- Audit logs (depends on users)
+DELETE FROM audit_logs;
+
+-- ------------------------------------------------------------
+-- STEP 3: Optional sanity checks (uncomment if needed)
+-- ------------------------------------------------------------
+-- SELECT 'users' AS table, COUNT(*) FROM users
+-- UNION ALL SELECT 'borrowers', COUNT(*) FROM borrowers
+-- UNION ALL SELECT 'loans', COUNT(*) FROM loans
+-- UNION ALL SELECT 'payments', COUNT(*) FROM payments
+-- UNION ALL SELECT 'audit_logs', COUNT(*) FROM audit_logs;
+
+-- ------------------------------------------------------------
+-- STEP 4: Commit changes
+-- ------------------------------------------------------------
+COMMIT;
+
+-- ============================================================
+-- End of script
+-- ============================================================

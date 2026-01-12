@@ -23,6 +23,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import { loanApi } from '../../api/loan.api';
 import type { Loan, LoanStatus } from '../../types';
 import { logger } from '../../utils/logger';
+import { formatCurrency } from '../../utils/currency';
 
 import DataTable from '../../components/tables/DataTable';
 
@@ -77,13 +78,6 @@ const LoansPage: React.FC = () => {
       default:
         return 'default';
     }
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-    }).format(amount);
   };
 
   const columns = [

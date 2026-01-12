@@ -21,6 +21,7 @@ import GetAppIcon from '@mui/icons-material/GetApp';
 import { reportApi } from '../../api/report.api';
 import type { CollectionsSummary } from '../../types';
 import { logger } from '../../utils/logger';
+import { formatCurrency, paiseToRupees } from '../../utils/currency';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const MODULE = 'ReportsPage';
@@ -52,22 +53,15 @@ const ReportsPage: React.FC = () => {
     }
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-    }).format(amount);
-  };
-
   const handleExport = () => {
     if (!summary) return;
 
     const csvContent = [
       ['Category', 'Amount (INR)'],
-      ['Total Collected', summary.totalCollected],
-      ['Principal Collected', summary.principalCollected],
-      ['Interest Collected', summary.interestCollected],
-      ['Penalty Collected', summary.penaltyCollected],
+      ['Total Collected', paiseToRupees(summary.totalCollected)],
+      ['Principal Collected', paiseToRupees(summary.principalCollected)],
+      ['Interest Collected', paiseToRupees(summary.interestCollected)],
+      ['Penalty Collected', paiseToRupees(summary.penaltyCollected)],
     ]
       .map((e) => e.join(','))
       .join('\n');
