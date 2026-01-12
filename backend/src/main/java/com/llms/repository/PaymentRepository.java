@@ -31,4 +31,6 @@ public interface PaymentRepository extends JpaRepository<Payment, UUID> {
 
     @Query("SELECT COALESCE(SUM(p.amountPaid), 0) FROM Payment p WHERE p.paymentDate BETWEEN :startDate AND :endDate AND p.loan.createdBy.id = :userId")
     Long sumPaymentsBetweenDatesByCreatedBy(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate, @Param("userId") UUID userId);
+
+    Page<Payment> findByLoanCreatedById(UUID userId, Pageable pageable);
 }

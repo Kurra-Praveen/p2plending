@@ -57,6 +57,22 @@ export const paymentApi = {
       throw error;
     }
   },
+
+  /**
+   * Get all payments globally with pagination
+   */
+  getAll: async (params?: PageRequest): Promise<PageResponse<Payment>> => {
+    logger.debug(MODULE, 'Fetching all payments', params);
+
+    try {
+      const response = await axiosInstance.get<PageResponse<Payment>>('/payments', { params });
+      logger.debug(MODULE, `Fetched ${response.data.content.length} payments`);
+      return response.data;
+    } catch (error) {
+      logger.error(MODULE, 'Failed to fetch all payments', error);
+      throw error;
+    }
+  },
 };
 
 export default paymentApi;

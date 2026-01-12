@@ -235,4 +235,16 @@ public class PaymentService {
                 .map(PaymentResponse::from)
                 .collect(Collectors.toList());
     }
+
+    @Transactional(readOnly = true)
+    public Page<PaymentResponse> getAllPayments(Pageable pageable) {
+        if (securityUtils.isAdminOrAuditor()) {
+            return paymentRepository.findAll(pageable)
+                    .map(PaymentResponse::from);
+        } else {
+            UUID userId = securityUtils.getCurrentUserId();
+            return paymentRepository.findByLoanCreatedById(userId, pageable)
+                    .map(PaymentResponse::from);
+        }
+    }
 }

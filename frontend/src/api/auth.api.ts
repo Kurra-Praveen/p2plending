@@ -5,7 +5,7 @@
 
 import axiosInstance, { tokenManager } from './axios';
 import { logger } from '../utils/logger';
-import type { LoginRequest, LoginResponse, RegisterRequest, User } from '../types';
+import type { LoginRequest, LoginResponse, RegisterRequest } from '../types';
 
 const MODULE = 'AuthAPI';
 
