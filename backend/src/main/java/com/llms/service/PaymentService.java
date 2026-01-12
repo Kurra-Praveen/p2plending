@@ -22,9 +22,10 @@ import java.util.stream.Collectors;
 
 /**
  * Payment Service implementing the allocation logic:
- * 1. Penalty (oldest first)
- * 2. Interest (oldest EMI first)
- * 3. Principal (oldest EMI first)
+ * 1. Charges (oldest first)
+ * 2. Penalty (oldest first)
+ * 3. Interest (oldest EMI first)
+ * 4. Principal (oldest EMI first)
  *
  * This ensures proper financial handling and supports partial payments.
  */
@@ -38,8 +39,10 @@ public class PaymentService {
     private final LoanRepository loanRepository;
     private final RepaymentScheduleRepository scheduleRepository;
     private final PenaltyRepository penaltyRepository;
+    private final LoanChargeRepository loanChargeRepository;
     private final SecurityUtils securityUtils;
     private final LoanService loanService;
+    private final ChargeService chargeService;
     private final AuditService auditService;
 
     @Transactional
@@ -92,15 +95,23 @@ public class PaymentService {
 
     /**
      * Allocates payment amount in order:
-     * 1. Penalties (oldest first)
-     * 2. Interest (oldest EMI first)
-     * 3. Principal (oldest EMI first)
+     * 1. Charges (oldest first)
+     * 2. Penalties (oldest first)
+     * 3. Interest (oldest EMI first)
+     * 4. Principal (oldest EMI first)
      */
     private List<PaymentAllocation> allocatePayment(Payment payment, Loan loan, long amount) {
         List<PaymentAllocation> allocations = new ArrayList<>();
         long remaining = amount;
 
-        // Step 1: Allocate to penalties
+        // Step 1: Allocate to charges (oldest first)
+        remaining = allocateToCharges(payment, loan.getId(), remaining, allocations);
+
+        if (remaining <= 0) {
+            return allocations;
+        }
+
+        // Step 2: Allocate to penalties
         remaining = allocateToPenalties(payment, loan.getId(), remaining, allocations);
 
         if (remaining <= 0) {
@@ -146,6 +157,27 @@ public class PaymentService {
         }
 
         return allocations;
+    }
+
+    private long allocateToCharges(Payment payment, UUID loanId, long amount, List<PaymentAllocation> allocations) {
+        List<LoanCharge> outstandingCharges = loanChargeRepository.findOutstandingChargesByLoanId(loanId);
+        long remaining = amount;
+
+        for (LoanCharge charge : outstandingCharges) {
+            if (remaining <= 0) break;
+
+            long chargeAmount = charge.getOutstandingAmount();
+            long allocation = Math.min(remaining, chargeAmount);
+
+            allocations.add(createAllocation(payment, null, AllocationType.CHARGE, allocation));
+
+            charge.applyPayment(allocation);
+            loanChargeRepository.save(charge);
+
+            remaining -= allocation;
+        }
+
+        return remaining;
     }
 
     private long allocateToPenalties(Payment payment, UUID loanId, long amount, List<PaymentAllocation> allocations) {
@@ -213,6 +245,9 @@ public class PaymentService {
 
         // Get outstanding penalties
         Long outstandingPenalty = penaltyRepository.sumUnpaidPenaltiesByLoanId(loan.getId());
+
+        // Get outstanding charges
+        chargeService.updateLoanOutstandingCharges(loan);
 
         loan.setOutstandingPrincipal(outstandingPrincipal);
         loan.setOutstandingInterest(outstandingInterest);

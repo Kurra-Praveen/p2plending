@@ -13,7 +13,8 @@
       "Bash(F:/java/p2plending/backend/mvnw.cmd:*)",
       "Bash(npm --version:*)",
       "mcp__ide__getDiagnostics",
-      "Bash(python -c:*)"
+      "Bash(python -c:*)",
+      "Bash(mvn compile:*)"
     ]
   }
 }
