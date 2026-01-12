@@ -163,6 +163,11 @@ public class LoanService {
 
     @Transactional(readOnly = true)
     public Page<LoanResponse> getAllLoans(Pageable pageable) {
+        if (securityUtils.isAdminOrAuditor()) {
+            // Admins and auditors can view all loans
+            return loanRepository.findAll(pageable)
+                    .map(LoanResponse::from);
+        }
         UUID currentUserId = securityUtils.getCurrentUserId();
         return loanRepository.findAllByCreatedBy(currentUserId, pageable)
                 .map(LoanResponse::from);
@@ -170,6 +175,11 @@ public class LoanService {
 
     @Transactional(readOnly = true)
     public Page<LoanResponse> getLoansByStatus(LoanStatus status, Pageable pageable) {
+        if (securityUtils.isAdminOrAuditor()) {
+            // Admins and auditors can view all loans
+            return loanRepository.findByStatus(status, pageable)
+                    .map(LoanResponse::from);
+        }
         UUID currentUserId = securityUtils.getCurrentUserId();
         return loanRepository.findByStatusAndCreatedBy(status, currentUserId, pageable)
                 .map(LoanResponse::from);
@@ -177,6 +187,11 @@ public class LoanService {
 
     @Transactional(readOnly = true)
     public Page<LoanResponse> getLoansByBorrower(UUID borrowerId, Pageable pageable) {
+        if (securityUtils.isAdminOrAuditor()) {
+            // Admins and auditors can view all loans
+            return loanRepository.findByBorrowerId(borrowerId, pageable)
+                    .map(LoanResponse::from);
+        }
         UUID currentUserId = securityUtils.getCurrentUserId();
         return loanRepository.findByBorrowerIdAndCreatedBy(borrowerId, currentUserId, pageable)
                 .map(LoanResponse::from);
@@ -237,6 +252,11 @@ public class LoanService {
     }
 
     Loan findLoanOrThrow(UUID id) {
+        if (securityUtils.isAdminOrAuditor()) {
+            // Admins and auditors can access all loans
+            return loanRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Loan", "id", id));
+        }
         UUID currentUserId = securityUtils.getCurrentUserId();
         return loanRepository.findByIdAndCreatedBy(id, currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("Loan", "id", id));

@@ -44,4 +44,11 @@ public class SecurityUtils {
         return authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_" + role));
     }
+
+    /**
+     * Check if current user has admin or auditor privileges (can view all data)
+     */
+    public boolean isAdminOrAuditor() {
+        return hasRole("ADMIN") || hasRole("AUDITOR");
+    }
 }

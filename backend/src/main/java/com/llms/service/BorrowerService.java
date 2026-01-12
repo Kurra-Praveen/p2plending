@@ -56,14 +56,26 @@ public class BorrowerService {
 
     @Transactional(readOnly = true)
     public BorrowerResponse getBorrower(UUID id) {
-        UUID currentUserId = securityUtils.getCurrentUserId();
-        Borrower borrower = borrowerRepository.findByIdAndCreatedByAndNotDeleted(id, currentUserId)
-                .orElseThrow(() -> new ResourceNotFoundException("Borrower", "id", id));
+        Borrower borrower;
+        if (securityUtils.isAdminOrAuditor()) {
+            // Admins and auditors can view all borrowers
+            borrower = borrowerRepository.findByIdAndNotDeleted(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Borrower", "id", id));
+        } else {
+            UUID currentUserId = securityUtils.getCurrentUserId();
+            borrower = borrowerRepository.findByIdAndCreatedByAndNotDeleted(id, currentUserId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Borrower", "id", id));
+        }
         return BorrowerResponse.from(borrower);
     }
 
     @Transactional(readOnly = true)
     public Page<BorrowerResponse> getAllBorrowers(Pageable pageable) {
+        if (securityUtils.isAdminOrAuditor()) {
+            // Admins and auditors can view all borrowers
+            return borrowerRepository.findAllNotDeleted(pageable)
+                    .map(BorrowerResponse::from);
+        }
         UUID currentUserId = securityUtils.getCurrentUserId();
         return borrowerRepository.findAllByCreatedByAndNotDeleted(currentUserId, pageable)
                 .map(BorrowerResponse::from);
@@ -71,6 +83,11 @@ public class BorrowerService {
 
     @Transactional(readOnly = true)
     public Page<BorrowerResponse> getBorrowersByStatus(BorrowerStatus status, Pageable pageable) {
+        if (securityUtils.isAdminOrAuditor()) {
+            // Admins and auditors can view all borrowers
+            return borrowerRepository.findByStatusAndNotDeleted(status, pageable)
+                    .map(BorrowerResponse::from);
+        }
         UUID currentUserId = securityUtils.getCurrentUserId();
         return borrowerRepository.findByStatusAndCreatedByAndNotDeleted(status, currentUserId, pageable)
                 .map(BorrowerResponse::from);
@@ -138,6 +155,11 @@ public class BorrowerService {
     }
 
     private Borrower findBorrowerOrThrow(UUID id) {
+        if (securityUtils.isAdminOrAuditor()) {
+            // Admins and auditors can access all borrowers
+            return borrowerRepository.findByIdAndNotDeleted(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Borrower", "id", id));
+        }
         UUID currentUserId = securityUtils.getCurrentUserId();
         return borrowerRepository.findByIdAndCreatedByAndNotDeleted(id, currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("Borrower", "id", id));
