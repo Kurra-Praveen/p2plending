@@ -40,6 +40,7 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import { loanApi } from '../../api/loan.api';
 import type { Loan, RepaymentSchedule, PaymentMode } from '../../types';
 import { logger } from '../../utils/logger';
+import { formatCurrency } from '../../utils/currency';
 
 const MODULE = 'LoanDetailPage';
 
@@ -139,13 +140,6 @@ const LoanDetailPage: React.FC = () => {
       case 'PENDING': return 'default';
       default: return 'default';
     }
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-    }).format(amount);
   };
 
   if (loading) {

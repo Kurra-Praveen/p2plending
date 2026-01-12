@@ -27,6 +27,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { loanApi } from '../../api/loan.api';
 import { paymentApi } from '../../api/payment.api';
 import { logger } from '../../utils/logger';
+import { formatCurrency, paiseToRupees, rupeesToPaise } from '../../utils/currency';
 import type { Loan } from '../../types';
 import { FormInput, FormSelect } from '../../components/forms';
 
@@ -71,9 +72,9 @@ const RecordPaymentPage: React.FC = () => {
       try {
         const data = await loanApi.getById(id);
         setLoan(data);
-        // Pre-fill amount with EMI amount or total outstanding if less
-        const suggestedAmount = Math.min(data.emiAmount, data.totalOutstanding);
-        setValue('amount', suggestedAmount);
+        // Pre-fill amount with EMI amount or total outstanding if less (converted to rupees for display)
+        const suggestedAmountPaise = Math.min(data.emiAmount, data.totalOutstanding);
+        setValue('amount', paiseToRupees(suggestedAmountPaise));
       } catch (err) {
         logger.error(MODULE, 'Failed to fetch loan details', err);
         setServerError('Failed to load loan details');
@@ -93,7 +94,7 @@ const RecordPaymentPage: React.FC = () => {
 
     try {
       await paymentApi.record(id, {
-        amount: data.amount,
+        amount: rupeesToPaise(data.amount), // Convert rupees to paise for backend
         paymentDate: data.paymentDate,
         mode: data.mode,
         reference: data.reference,
@@ -106,13 +107,6 @@ const RecordPaymentPage: React.FC = () => {
       const message = err.response?.data?.message || 'Failed to record payment. Please try again.';
       setServerError(message);
     }
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-    }).format(amount);
   };
 
   if (loading) {

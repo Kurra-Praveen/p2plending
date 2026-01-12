@@ -28,6 +28,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { loanApi } from '../../api/loan.api';
 import { borrowerApi } from '../../api/borrower.api';
 import { logger } from '../../utils/logger';
+import { rupeesToPaise } from '../../utils/currency';
 import type { Borrower } from '../../types';
 import { FormInput, FormSelect } from '../../components/forms';
 
@@ -102,7 +103,7 @@ const CreateLoanPage: React.FC = () => {
     try {
       const loan = await loanApi.create({
         borrowerId: data.borrowerId,
-        principal: data.principal,
+        principal: rupeesToPaise(data.principal), // Convert rupees to paise for backend
         interestRate: data.interestRate,
         interestType: data.interestType,
         tenureMonths: data.tenureMonths,
