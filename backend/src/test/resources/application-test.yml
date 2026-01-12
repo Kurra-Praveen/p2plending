@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: llms-test
+
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+    show-sql: false
+
+  flyway:
+    enabled: false
+
+  h2:
+    console:
+      enabled: true
+
+server:
+  port: 0
+
+logging:
+  level:
+    root: WARN
+    com.llms: DEBUG
+    org.springframework.security: DEBUG
+
+jwt:
+  secret: Z+Ahgx5YcKe4nYA4jvXuugLRG63cM+Mqy5LTkT7WuQU=
+  expiration-ms: 86400000
+
+penalty:
+  rate-per-day: 0.05
+  grace-period-days: 0
+  max-dpd-for-default: 90
