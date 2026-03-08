@@ -1,6 +1,7 @@
 package com.llms.entity;
 
 import com.llms.enums.InterestType;
+import com.llms.enums.LoanFrequency;
 import com.llms.enums.LoanStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -43,6 +44,18 @@ public class Loan {
     @Column(name = "tenure_months", nullable = false)
     private Integer tenureMonths;
 
+    @Column(name = "tenure_units")
+    private Integer tenureUnits;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "frequency", length = 20)
+    @Builder.Default
+    private LoanFrequency frequency = LoanFrequency.MONTHLY;
+
+    @Column(name = "timezone", length = 50)
+    @Builder.Default
+    private String timezone = "Asia/Kolkata";
+
     @Column(name = "emi_amount", nullable = false)
     private Long emiAmount;
 
@@ -61,6 +74,10 @@ public class Loan {
     @Column(name = "outstanding_penalty", nullable = false)
     @Builder.Default
     private Long outstandingPenalty = 0L;
+
+    @Column(name = "outstanding_charges")
+    @Builder.Default
+    private Long outstandingCharges = 0L;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -98,7 +115,24 @@ public class Loan {
     @Builder.Default
     private List<Penalty> penalties = new ArrayList<>();
 
+    @OneToOne(mappedBy = "loan", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private LoanConfiguration configuration;
+
+    @OneToMany(mappedBy = "loan", cascade = CascadeType.ALL)
+    @Builder.Default
+    private List<LoanCharge> charges = new ArrayList<>();
+
     public Long getTotalOutstanding() {
-        return outstandingPrincipal + outstandingInterest + outstandingPenalty;
+        long charges = outstandingCharges != null ? outstandingCharges : 0L;
+        return outstandingPrincipal + outstandingInterest + outstandingPenalty + charges;
+    }
+
+    /**
+     * Returns the effective tenure based on frequency.
+     * For WEEKLY loans, returns tenureUnits.
+     * For MONTHLY loans, returns tenureMonths.
+     */
+    public Integer getEffectiveTenure() {
+        return frequency == LoanFrequency.WEEKLY ? tenureUnits : tenureMonths;
     }
 }
