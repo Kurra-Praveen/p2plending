@@ -33,13 +33,13 @@ import static org.mockito.Mockito.*;
 class LoanConfigurationServiceTest {
 
     @Mock
-    private LoanRepository loanRepository;
-
-    @Mock
     private LoanConfigurationRepository configurationRepository;
 
     @Mock
     private LoanInterestConfigHistoryRepository historyRepository;
+
+    @Mock
+    private LoanService loanService;
 
     @Mock
     private SecurityUtils securityUtils;
@@ -71,10 +71,10 @@ class LoanConfigurationServiceTest {
         ));
 
         configurationService = new LoanConfigurationService(
-                loanRepository,
                 configurationRepository,
                 historyRepository,
                 scheduleGeneratorFactory,
+                loanService,
                 securityUtils,
                 auditService
         );
@@ -261,7 +261,7 @@ class LoanConfigurationServiceTest {
         void shouldSwitchInterestMode() {
             LocalDate futureDate = LocalDate.now().plusDays(10);
 
-            when(loanRepository.findById(testLoan.getId())).thenReturn(Optional.of(testLoan));
+            when(loanService.findLoanOrThrow(testLoan.getId())).thenReturn(testLoan);
             when(securityUtils.getCurrentUser()).thenReturn(testUser);
             when(configurationRepository.findByLoanId(testLoan.getId()))
                     .thenReturn(Optional.of(testConfig));
@@ -298,7 +298,7 @@ class LoanConfigurationServiceTest {
         @DisplayName("Should reject switch for non-active loan")
         void shouldRejectSwitchForNonActiveLoan() {
             testLoan.setStatus(LoanStatus.CREATED);
-            when(loanRepository.findById(testLoan.getId())).thenReturn(Optional.of(testLoan));
+            when(loanService.findLoanOrThrow(testLoan.getId())).thenReturn(testLoan);
 
             assertThatThrownBy(() -> configurationService.switchInterestMode(
                     testLoan.getId(),
@@ -313,7 +313,7 @@ class LoanConfigurationServiceTest {
         @Test
         @DisplayName("Should reject switch with past effective date")
         void shouldRejectSwitchWithPastDate() {
-            when(loanRepository.findById(testLoan.getId())).thenReturn(Optional.of(testLoan));
+            when(loanService.findLoanOrThrow(testLoan.getId())).thenReturn(testLoan);
 
             assertThatThrownBy(() -> configurationService.switchInterestMode(
                     testLoan.getId(),
@@ -328,7 +328,7 @@ class LoanConfigurationServiceTest {
         @Test
         @DisplayName("Should reject switch with today's date")
         void shouldRejectSwitchWithTodaysDate() {
-            when(loanRepository.findById(testLoan.getId())).thenReturn(Optional.of(testLoan));
+            when(loanService.findLoanOrThrow(testLoan.getId())).thenReturn(testLoan);
 
             assertThatThrownBy(() -> configurationService.switchInterestMode(
                     testLoan.getId(),
@@ -346,7 +346,7 @@ class LoanConfigurationServiceTest {
             testConfig.setFrequency(LoanFrequency.WEEKLY);
             testConfig.setInterestType(InterestType.REDUCING);
 
-            when(loanRepository.findById(testLoan.getId())).thenReturn(Optional.of(testLoan));
+            when(loanService.findLoanOrThrow(testLoan.getId())).thenReturn(testLoan);
             when(configurationRepository.findByLoanId(testLoan.getId()))
                     .thenReturn(Optional.of(testConfig));
 

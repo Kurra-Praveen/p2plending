@@ -9,7 +9,6 @@ import com.llms.exception.InvalidStateException;
 import com.llms.exception.ResourceNotFoundException;
 import com.llms.repository.LoanConfigurationRepository;
 import com.llms.repository.LoanInterestConfigHistoryRepository;
-import com.llms.repository.LoanRepository;
 import com.llms.security.SecurityUtils;
 import com.llms.service.schedule.ScheduleGenerator;
 import com.llms.service.schedule.ScheduleGeneratorFactory;
@@ -31,10 +30,10 @@ import java.util.UUID;
 @Slf4j
 public class LoanConfigurationService {
 
-    private final LoanRepository loanRepository;
     private final LoanConfigurationRepository configurationRepository;
     private final LoanInterestConfigHistoryRepository historyRepository;
     private final ScheduleGeneratorFactory scheduleGeneratorFactory;
+    private final LoanService loanService;
     private final SecurityUtils securityUtils;
     private final AuditService auditService;
 
@@ -144,8 +143,7 @@ public class LoanConfigurationService {
             LocalDate effectiveDate,
             String reason
     ) {
-        Loan loan = loanRepository.findById(loanId)
-                .orElseThrow(() -> new ResourceNotFoundException("Loan", "id", loanId));
+        Loan loan = loanService.findLoanOrThrow(loanId);
 
         User currentUser = securityUtils.getCurrentUser();
 
